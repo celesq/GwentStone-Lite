@@ -6,17 +6,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import checker.CheckerConstants;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import fileio.CardInput;
+import fileio.GameInput;
 import fileio.Input;
+import fileio.StartGameInput;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
- * The entry point to this homework. It runs the checker that tests your implentation.
+ * The entry point to this homework. It runs the checker that tests your implementation.
  */
 public final class Main {
     /**
@@ -69,6 +75,10 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
 
+        PlayGame playGame = new PlayGame(inputData, filePath2);
+        playGame.play();
+
+
         /*
          * TODO Implement your function here
          *
@@ -88,7 +98,7 @@ public final class Main {
          *
          */
 
-        ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
-        objectWriter.writeValue(new File(filePath2), output);
+        //ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
+        //objectWriter.writeValue(new File(filePath2), output);
     }
 }
