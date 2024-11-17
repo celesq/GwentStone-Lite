@@ -3,8 +3,6 @@ package main;
 import fileio.CardInput;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Objects;
 
 public class Package {
     private ArrayList<Deck> pack;
@@ -37,11 +35,11 @@ public class Package {
 
     @Override
     public String toString() {
-        String result = "Package with " + nrDecks + " decks:\n";
+        StringBuilder result = new StringBuilder("Package with " + nrDecks + " decks:\n");
         for (Deck deck : pack) {
-            result = result + deck.toString() + "\n";
+            result.append(deck.toString()).append("\n");
         }
-        return result;
+        return result.toString();
     }
 
 
@@ -55,13 +53,20 @@ public class Package {
                     else if (card.getName().equals("Goliath") || card.getName().equals("Warden"))
                         cardTemp = new Tank(card.getAttackDamage(), card.getColors(), card.getDescription(), card.getHealth(), card.getMana(), card.getName());
                     else {
-                        if (card.getName().equals("The Ripper"))
-                            cardTemp = new TheRipper(card.getAttackDamage(), card.getColors(), card.getDescription(), card.getHealth(), card.getMana(), card.getName());
-                        else if (card.getName().equals("Miraj"))
-                            cardTemp = new Miraj(card.getAttackDamage(), card.getColors(), card.getDescription(), card.getHealth(), card.getMana(), card.getName());
-                        else if (card.getName().equals("The Cursed One"))
-                            cardTemp = new TheCursedOne(card.getAttackDamage(), card.getColors(), card.getDescription(), card.getHealth(), card.getMana(), card.getName());
-                        else cardTemp = new Disciple(card.getAttackDamage(), card.getColors(), card.getDescription(), card.getHealth(), card.getMana(), card.getName());
+                        switch (card.getName()) {
+                            case "The Ripper":
+                                cardTemp = new TheRipper(card.getAttackDamage(), card.getColors(), card.getDescription(), card.getHealth(), card.getMana(), card.getName());
+                                break;
+                            case "Miraj":
+                                cardTemp = new Miraj(card.getAttackDamage(), card.getColors(), card.getDescription(), card.getHealth(), card.getMana(), card.getName());
+                                break;
+                            case "The Cursed One":
+                                cardTemp = new TheCursedOne(card.getAttackDamage(), card.getColors(), card.getDescription(), card.getHealth(), card.getMana(), card.getName());
+                                break;
+                            default:
+                                cardTemp = new Disciple(card.getAttackDamage(), card.getColors(), card.getDescription(), card.getHealth(), card.getMana(), card.getName());
+                                break;
+                        }
                     }
                     deckTemp.addCard(cardTemp);
                 }

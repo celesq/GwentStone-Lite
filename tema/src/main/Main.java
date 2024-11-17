@@ -1,10 +1,10 @@
 package main;
 
 import checker.Checker;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import checker.CheckerConstants;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fileio.Input;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,6 +25,7 @@ public final class Main {
     /**
      * DO NOT MODIFY MAIN METHOD
      * Call the checker
+     *
      * @param args from command line
      * @throws IOException in case of exceptions to reading / writing
      */
@@ -58,11 +59,9 @@ public final class Main {
      * @param filePath2 for output file
      * @throws IOException in case of exceptions to reading / writing
      */
-    public static void action(final String filePath1,
-                              final String filePath2) throws IOException {
+    public static void action(final String filePath1, final String filePath2) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        Input inputData = objectMapper.readValue(new File(CheckerConstants.TESTS_PATH + filePath1),
-                Input.class);
+        Input inputData = objectMapper.readValue(new File(CheckerConstants.TESTS_PATH + filePath1), Input.class);
 
         PlayGame playGame = new PlayGame(inputData, filePath2);
         playGame.play();

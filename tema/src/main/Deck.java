@@ -1,7 +1,6 @@
 package main;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class Deck {
     private ArrayList<Card> deck;
@@ -43,10 +42,10 @@ public class Deck {
 
     @Override
     public String toString() {
-            String result = "";
+        StringBuilder result = new StringBuilder();
             for (Card card : deck) {
-                result = result + card.toString();
+                result.append(card.toString());
             }
-            return result;
+        return result.toString();
     }
 }

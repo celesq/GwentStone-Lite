@@ -1,7 +1,5 @@
 package main;
 
-import fileio.Coordinates;
-
 import java.util.ArrayList;
 
 public class Minion extends Card{
@@ -29,8 +27,4 @@ public class Minion extends Card{
         this.isFrozen = isFrozen;
     }
 
-    @Override
-    protected void ability(StartGame startGame, Coordinates cardAttacker, Coordinates cardAttacked){
-        return;
-    }
 }

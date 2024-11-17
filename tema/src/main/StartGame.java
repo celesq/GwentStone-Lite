@@ -4,6 +4,7 @@ import fileio.CardInput;
 import fileio.GameInput;
 import fileio.Input;
 import fileio.StartGameInput;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -150,27 +151,39 @@ public class StartGame {
 
     public void makeHero1(CardInput card) {
         Hero player1Hero = null;
-        if (card.getName().equals("Lord Royce")) {
-            player1Hero = new LordRoyce(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
-        } else  if (card.getName().equals("Empress Thorina")) {
-            player1Hero = new EmpressThorina(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
-        } else if (card.getName().equals("King Mudface")) {
-            player1Hero = new KingMudface(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
-        } else if (card.getName().equals("General Kocioraw"))
-            player1Hero = new GeneralKocioraw(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
+        switch (card.getName()) {
+            case "Lord Royce":
+                player1Hero = new LordRoyce(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
+                break;
+            case "Empress Thorina":
+                player1Hero = new EmpressThorina(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
+                break;
+            case "King Mudface":
+                player1Hero = new KingMudface(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
+                break;
+            case "General Kocioraw":
+                player1Hero = new GeneralKocioraw(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
+                break;
+        }
         player1.setHero(player1Hero);
     }
 
     public void makeHero2(CardInput card) {
         Hero player2Hero = null;
-        if (card.getName().equals("Lord Royce")) {
-            player2Hero = new LordRoyce(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
-        } else  if (card.getName().equals("Empress Thorina")) {
-            player2Hero = new EmpressThorina(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
-        } else if (card.getName().equals("King Mudface")) {
-            player2Hero = new KingMudface(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
-        } else if (card.getName().equals("General Kocioraw"))
-            player2Hero = new GeneralKocioraw(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
+        switch (card.getName()) {
+            case "Lord Royce":
+                player2Hero = new LordRoyce(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
+                break;
+            case "Empress Thorina":
+                player2Hero = new EmpressThorina(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
+                break;
+            case "King Mudface":
+                player2Hero = new KingMudface(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
+                break;
+            case "General Kocioraw":
+                player2Hero = new GeneralKocioraw(card.getMana(), card.getHealth(), card.getDescription(), card.getColors(), card.getName());
+                break;
+        }
         player2.setHero(player2Hero);
     }
 

@@ -3,16 +3,11 @@ package main;
 import java.util.ArrayList;
 
 public class Board {
-    Card[][] board;
+    private Card[][] board;
 
     public Card[][] getBoard() {
         return board;
     }
-
-    public void setBoard(Card[][] board) {
-        this.board = board;
-    }
-
     public Board() {
         board = new Minion[4][5];
         for (int i = 0; i < 4; i++) {
@@ -78,7 +73,7 @@ public class Board {
         if (index == 2) {
             for (int j = 0; j < 5; j++)
                 if (board[row][j].getName().isEmpty())
-                    return false;
+                    return true;
         }
         else {
             if (row == 0)
@@ -86,9 +81,9 @@ public class Board {
             else row = 2;
             for (int j = 0; j < 5; j++)
                 if(board[row][j].getName().isEmpty())
-                    return false;
+                    return true;
         }
-        return true;
+        return false;
     }
 
     public void roundReset() {
@@ -114,40 +109,39 @@ public class Board {
     }
 
     public boolean verifyIfAttacked(int x, int y) {
-        if (board[x][y].getHasAttacked() == 0)
-            return false;
-        return true;
+        return board[x][y].getHasAttacked() != 0;
     }
 
     public boolean verifyIfFrozen(int x, int y) {
-        if (board[x][y].getIsFrozen() == 0)
-            return false;
-        return true;
+        return board[x][y].getIsFrozen() != 0;
     }
 
     public boolean verifyTank(int x, int y, int turn) {
+        int ok = 1;
         if (turn == 1) {
-            int ok = 1;
             for (int j = 0; j < 5; j++)
-                if (board[1][j].getIsTank() == 1)
+                if (board[1][j].getIsTank() == 1) {
                     ok = 0;
+                    break;
+                }
             if (ok == 1)
-                return true;
+                return false;
             for (int j = 0; j < 5; j++)
                 if (board[1][j].getIsTank() == 1 && x == 1 && y == j)
-                    return true;
+                    return false;
         } else {
-            int ok = 1;
             for (int j = 0; j < 5; j++)
-                if (board[2][j].getIsTank() == 1)
+                if (board[2][j].getIsTank() == 1) {
                     ok = 0;
+                    break;
+                }
             if (ok == 1)
-                return true;
+                return false;
             for (int j = 0; j < 5; j++)
                 if (board[2][j].getIsTank() == 1 && x == 2 && y==j)
-                    return true;
+                    return false;
         }
-        return false;
+        return true;
     }
 
     public void useAttack(int attackerX, int attackerY, int attackedX, int attackedY) {
@@ -156,30 +150,30 @@ public class Board {
         attacker.setHasAttacked(1);
         attacked.setHealth(attacked.getHealth() - attacker.getAttackDamage());
         if (attacked.getHealth() <= 0) {
-            int empty = 0;
-            for (int j = attackedY + 1; j < 5; j++) {
-                board[attackedX][j - 1] = board[attackedX][j];
-                if (board[attackedX][j].getDescription().isEmpty()) {
-                    empty++;
-                    board[attackedX][j - 1] = new Minion();
-                    break;
-                }
+            eliminateCard(attackedX, attackedY);
+        }
+    }
+
+    public void eliminateCard(int attackedX, int attackedY) {
+        int empty = 0;
+        for (int j = attackedY + 1; j < 5; j++) {
+            board[attackedX][j - 1] = board[attackedX][j];
+            if (board[attackedX][j].getDescription().isEmpty()) {
+                empty++;
+                board[attackedX][j - 1] = new Minion();
+                break;
             }
-            if (empty == 0) {
-                board[attackedX][4] = new Minion();
-            }
+        }
+        if (empty == 0) {
+            board[attackedX][4] = new Minion();
         }
     }
 
     public boolean verifyIfAlly(int turn, int attackedX) {
         if (turn == 1) {
-            if (attackedX == 2 || attackedX == 3)
-                return true;
-            return false;
+            return attackedX == 2 || attackedX == 3;
         } else {
-            if (attackedX == 1 || attackedX == 0)
-                return true;
-            return false;
+            return attackedX == 1 || attackedX == 0;
         }
     }
 
@@ -189,28 +183,12 @@ public class Board {
                 if (board[1][j].getIsTank() == 1)
                     return true;
             }
-            return false;
         } else {
             for (int j = 0; j < 5; j++) {
                 if (board[2][j].getIsTank() == 1)
                     return true;
             }
-            return false;
         }
-    }
-
-    public void eliminateCard(int x, int y) {
-        int empty = 0;
-        for (int j = y + 1; j < 5; j++) {
-            board[x][j - 1] = board[x][j];
-            if (board[x][j].getDescription().isEmpty()) {
-                empty++;
-                board[x][j - 1] = new Minion();
-                break;
-            }
-        }
-        if (empty == 0) {
-            board[x][4] = new Minion();
-        }
+        return false;
     }
 }
