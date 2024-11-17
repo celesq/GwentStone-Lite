@@ -4,12 +4,8 @@ import fileio.CardInput;
 import fileio.GameInput;
 import fileio.Input;
 import fileio.StartGameInput;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Random;
 
 
@@ -91,7 +87,7 @@ public class StartGame {
         this.inputData = inputData;
     }
 
-    public void setGame(Input inputData, GameInput game) {
+    public void setGame(Input inputData, GameInput game, Output output) {
         board = new Board();
 
         Package packagePlayerOne = new Package(inputData.getPlayerOneDecks().getNrDecks());
@@ -123,6 +119,7 @@ public class StartGame {
         putCardinHand(player1);
         putCardinHand(player2);
         getBoard().roundReset();
+        output.setCnt(2);
     }
 
     public void makeDeckPlayerOne(ArrayList<Deck> pack) {
