@@ -1,5 +1,7 @@
 package main;
 
+import fileio.Coordinates;
+
 import java.util.ArrayList;
 
 public class Card {
@@ -14,6 +16,7 @@ public class Card {
     private int hasAttacked = 0;
     private int isFrozen = 0;
     private int isTank = 0;
+    private int roundsFrozen = 0;
 
     public Card() {
         mana = 0;
@@ -31,6 +34,14 @@ public class Card {
         this.health = health;
         this.mana = mana;
         this.name = name;
+    }
+
+    public int getRoundsFrozen() {
+        return roundsFrozen;
+    }
+
+    public void setRoundsFrozen(int roundsFrozen) {
+        this.roundsFrozen = roundsFrozen;
     }
 
     public int getAttackDamage() {
@@ -119,6 +130,10 @@ public class Card {
 
     public void setIsTank(int isTank) {
         this.isTank = isTank;
+    }
+
+    protected void ability(StartGame startGame, Coordinates cardAttacker, Coordinates cardAttacked) {
+        return;
     }
 
     @Override

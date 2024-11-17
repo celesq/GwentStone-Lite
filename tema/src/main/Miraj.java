@@ -1,5 +1,7 @@
 package main;
 
+import fileio.Coordinates;
+
 import java.util.ArrayList;
 
 public class Miraj extends SpecialCard{
@@ -10,7 +12,14 @@ public class Miraj extends SpecialCard{
     }
 
     @Override
-    protected void ability() {
+    protected void ability(StartGame startGame, Coordinates cardAttacker, Coordinates cardAttacked) {
         //Skyjack;
+        Card attacker = startGame.getBoard().getCard(cardAttacker.getX(), cardAttacker.getY());
+        Card attacked = startGame.getBoard().getCard(cardAttacked.getX(), cardAttacked.getY());
+        int mirajHealth = attacker.getHealth();
+        int attackedHealth = attacked.getHealth();
+        attacked.setHealth(mirajHealth);
+        attacker.setHealth(attackedHealth);
+        attacker.setHasAttacked(1);
     }
 }

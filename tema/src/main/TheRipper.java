@@ -1,5 +1,7 @@
 package main;
 
+import fileio.Coordinates;
+
 import java.util.ArrayList;
 
 public class TheRipper extends SpecialCard{
@@ -9,7 +11,14 @@ public class TheRipper extends SpecialCard{
     }
 
     @Override
-    protected void ability() {
+    protected void ability(StartGame startGame, Coordinates cardAttacker, Coordinates cardAttacked) {
         //Weak Knees;
+        Card attacker = startGame.getBoard().getCard(cardAttacker.getX(), cardAttacker.getY());
+        Card attacked = startGame.getBoard().getCard(cardAttacked.getX(), cardAttacked.getY());
+        if (attacked.getAttackDamage() < 2)
+            attacked.setAttackDamage(0);
+        else
+            attacked.setAttackDamage(attacked.getAttackDamage() - 2);
+        attacker.setHasAttacked(1);
     }
 }

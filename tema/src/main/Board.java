@@ -5,6 +5,14 @@ import java.util.ArrayList;
 public class Board {
     Card[][] board;
 
+    public Card[][] getBoard() {
+        return board;
+    }
+
+    public void setBoard(Card[][] board) {
+        this.board = board;
+    }
+
     public Board() {
         board = new Minion[4][5];
         for (int i = 0; i < 4; i++) {
@@ -69,12 +77,15 @@ public class Board {
     public boolean isFull(int index, int row) {
         if (index == 2) {
             for (int j = 0; j < 5; j++)
-                if (board[row][j].getName().equals(""))
+                if (board[row][j].getName().isEmpty())
                     return false;
         }
         else {
+            if (row == 0)
+                row = 3;
+            else row = 2;
             for (int j = 0; j < 5; j++)
-                if(board[row + 2][j].getName().equals(""))
+                if(board[row][j].getName().isEmpty())
                     return false;
         }
         return true;
@@ -84,7 +95,20 @@ public class Board {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 5; j++) {
                 board[i][j].setHasAttacked(0);
-                board[i][j].setIsFrozen(0);
+                if (board[i][j].getRoundsFrozen() > 1) {
+                    board[i][j].setIsFrozen(0);
+                    board[i][j].setRoundsFrozen(0);
+                }
+            }
+        }
+    }
+
+    public void incrementFrozen() {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (board[i][j].getIsFrozen() == 1) {
+                    board[i][j].setRoundsFrozen(board[i][j].getRoundsFrozen() + 1);
+                }
             }
         }
     }
@@ -110,7 +134,7 @@ public class Board {
             if (ok == 1)
                 return true;
             for (int j = 0; j < 5; j++)
-                if (board[1][j].getIsTank() == 1 && x == 1)
+                if (board[1][j].getIsTank() == 1 && x == 1 && y == j)
                     return true;
         } else {
             int ok = 1;
@@ -120,7 +144,7 @@ public class Board {
             if (ok == 1)
                 return true;
             for (int j = 0; j < 5; j++)
-                if (board[2][j].getIsTank() == 1 && x == 2)
+                if (board[2][j].getIsTank() == 1 && x == 2 && y==j)
                     return true;
         }
         return false;
@@ -132,8 +156,61 @@ public class Board {
         attacker.setHasAttacked(1);
         attacked.setHealth(attacked.getHealth() - attacker.getAttackDamage());
         if (attacked.getHealth() <= 0) {
-            for (int j = attackedY + 1; j < 5; j++)
+            int empty = 0;
+            for (int j = attackedY + 1; j < 5; j++) {
                 board[attackedX][j - 1] = board[attackedX][j];
+                if (board[attackedX][j].getDescription().isEmpty()) {
+                    empty++;
+                    board[attackedX][j - 1] = new Minion();
+                    break;
+                }
+            }
+            if (empty == 0) {
+                board[attackedX][4] = new Minion();
+            }
+        }
+    }
+
+    public boolean verifyIfAlly(int turn, int attackedX) {
+        if (turn == 1) {
+            if (attackedX == 2 || attackedX == 3)
+                return true;
+            return false;
+        } else {
+            if (attackedX == 1 || attackedX == 0)
+                return true;
+            return false;
+        }
+    }
+
+    public boolean verifyHasTank(int turn) {
+        if (turn == 1) {
+            for (int j = 0; j < 5; j++) {
+                if (board[1][j].getIsTank() == 1)
+                    return true;
+            }
+            return false;
+        } else {
+            for (int j = 0; j < 5; j++) {
+                if (board[2][j].getIsTank() == 1)
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    public void eliminateCard(int x, int y) {
+        int empty = 0;
+        for (int j = y + 1; j < 5; j++) {
+            board[x][j - 1] = board[x][j];
+            if (board[x][j].getDescription().isEmpty()) {
+                empty++;
+                board[x][j - 1] = new Minion();
+                break;
+            }
+        }
+        if (empty == 0) {
+            board[x][4] = new Minion();
         }
     }
 }

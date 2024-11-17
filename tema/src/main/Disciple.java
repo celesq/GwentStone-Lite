@@ -1,5 +1,7 @@
 package main;
 
+import fileio.Coordinates;
+
 import java.util.ArrayList;
 
 public class Disciple extends SpecialCard{
@@ -10,7 +12,11 @@ public class Disciple extends SpecialCard{
     }
 
     @Override
-    protected void ability() {
+    protected void ability(StartGame startGame, Coordinates cardAttacker, Coordinates cardAttacked) {
         //God's Plan;
+        Card attacker = startGame.getBoard().getCard(cardAttacker.getX(), cardAttacker.getY());
+        Card attacked = startGame.getBoard().getCard(cardAttacked.getX(), cardAttacked.getY());
+        attacked.setHealth(attacked.getHealth() + 2);
+        attacker.setHasAttacked(1);
     }
 }

@@ -13,7 +13,7 @@ public class Output {
     private StartGame startGame;
     private ObjectMapper objectMapper = new ObjectMapper();
     private ArrayNode output = objectMapper.createArrayNode();
-    static int cnt = 2;
+    int cnt = 2;
 
     public Output(ArrayList<ActionsInput> actions, StartGame startGame) {
         this.actions = actions;
@@ -52,29 +52,45 @@ public class Output {
         this.output = output;
     }
 
+    public int getCnt() {
+        return cnt;
+    }
+
+    public void setCnt(int cnt) {
+        this.cnt = cnt;
+    }
+
     public void iterateActions(ArrayList<ActionsInput> actions) {
         for (ActionsInput action : actions) {
             String currentCommand = action.getCommand();
             if (currentCommand.equals("getPlayerDeck"))
                 getPlayerDeck(action.getPlayerIdx(), currentCommand);
-            if (currentCommand.equals("getPlayerHero"))
+            else if (currentCommand.equals("getPlayerHero"))
                 getPlayerHero(action.getPlayerIdx(), currentCommand);
-            if (currentCommand.equals("getPlayerTurn"))
+            else if (currentCommand.equals("getPlayerTurn"))
                 getPlayerTurn(startGame.getCurrentTurn(), currentCommand);
-            if (currentCommand.equals("endPlayerTurn"))
+            else if (currentCommand.equals("endPlayerTurn"))
                 endPlayerTurn();
-            if (currentCommand.equals("placeCard"))
+            else if (currentCommand.equals("placeCard"))
                 placeCard(action.getHandIdx(), currentCommand);
-            if (currentCommand.equals("getPlayerMana"))
+            else if (currentCommand.equals("getPlayerMana"))
                 getPlayerMana(action.getPlayerIdx(), currentCommand);
-            if (currentCommand.equals("getCardsOnTable"))
+            else if (currentCommand.equals("getCardsOnTable"))
                 getCardsOnTable(currentCommand);
-            if (currentCommand.equals("getCardsInHand"))
+            else if (currentCommand.equals("getCardsInHand"))
                 getCardsInHand(currentCommand, action.getPlayerIdx());
-            if (currentCommand.equals("cardUsesAttack"))
+            else if (currentCommand.equals("cardUsesAttack"))
                 cardUsesAttack(currentCommand, action.getCardAttacker(), action.getCardAttacked());
-            if (currentCommand.equals("getCardAtPosition"))
+            else if (currentCommand.equals("getCardAtPosition"))
                 getCardAtPosition(currentCommand, action.getX(), action.getY());
+            else if (currentCommand.equals("cardUsesAbility"))
+                cardUsesAbility(currentCommand, action.getCardAttacker(), action.getCardAttacked());
+            else if (currentCommand.equals("useAttackHero"))
+                useAttackHero(currentCommand, action.getCardAttacker());
+            else if (currentCommand.equals("useHeroAbility"))
+                useHeroAbility(currentCommand, action.getAffectedRow(), startGame.getCurrentTurn());
+            else if (currentCommand.equals("getFrozenCardsOnTable"))
+                getFrozenCards(currentCommand);
         }
     }
     private void getPlayerDeck(int playerIdx, String currentCommand) {
@@ -103,6 +119,34 @@ public class Output {
         objectNode.put("output", arrayNode);
         output.add(objectNode);
     }
+
+    private void getFrozenCards(String currentCommand) {
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("command" , currentCommand);
+        ArrayNode arrayNode = objectMapper.createArrayNode();
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 5; j++) {
+                if (startGame.getBoard().getBoard()[i][j].getIsFrozen() == 1) {
+                    Card cardTemp = startGame.getBoard().getBoard()[i][j];
+                    if (!cardTemp.getDescription().equals("")) {
+                        ObjectNode objNode = objectMapper.createObjectNode();
+                        objNode.put("mana", cardTemp.getMana());
+                        objNode.put("attackDamage", cardTemp.getAttackDamage());
+                        objNode.put("health", cardTemp.getHealth());
+                        objNode.put("description", cardTemp.getDescription());
+                        ArrayNode colorsArray = objectMapper.createArrayNode();
+                        for (String color : cardTemp.getColors())
+                            colorsArray.add(color);
+                        objNode.set("colors", colorsArray);
+                        objNode.put("name", cardTemp.getName());
+                        arrayNode.add(objNode);
+                    }
+                }
+            }
+        objectNode.put("output", arrayNode);
+        output.add(objectNode);
+    }
+
     private void getPlayerHero(int playerIdx, String currentCommand) {
         Card hero;
         if (playerIdx == 1)
@@ -305,14 +349,24 @@ public class Output {
     private void endPlayerTurn() {
         startGame.endPlayerTurn();
         cnt++;
+        startGame.getBoard().incrementFrozen();
         if (cnt % 2 == 0) {
-            if (startGame.getCurrentRound() <= 10) {
+            if (startGame.getCurrentRound() < 10) {
                 startGame.setCurrentRound(startGame.getCurrentRound() + 1);
                 startGame.getPlayer1().addMana(startGame.getCurrentRound());
                 startGame.getPlayer2().addMana(startGame.getCurrentRound());
                 startGame.putCardinHand(startGame.getPlayer1());
                 startGame.putCardinHand(startGame.getPlayer2());
                 startGame.getBoard().roundReset();
+                startGame.getPlayer1().getHero().setHasAttacked(0);
+                startGame.getPlayer2().getHero().setHasAttacked(0);
+            } else {
+                startGame.setCurrentRound(startGame.getCurrentRound() + 1);
+                startGame.putCardinHand(startGame.getPlayer1());
+                startGame.putCardinHand(startGame.getPlayer2());
+                startGame.getBoard().roundReset();
+                startGame.getPlayer1().getHero().setHasAttacked(0);
+                startGame.getPlayer2().getHero().setHasAttacked(0);
             }
         }
     }
@@ -395,5 +449,232 @@ public class Output {
             objectNode.put("output", objNode);
         }
         output.add(objectNode);
+    }
+
+    private void cardUsesAbility(String currentCommand, Coordinates cardAttacker, Coordinates cardAttacked) {
+        if (startGame.getBoard().verifyIfFrozen(cardAttacker.getX(), cardAttacker.getY())) {
+            ObjectNode objectNode = objectMapper.createObjectNode();
+            objectNode.put("command" , currentCommand);
+            ObjectNode objectNode2 = objectMapper.createObjectNode();
+            objectNode2.put("x" , cardAttacker.getX());
+            objectNode2.put("y" , cardAttacker.getY());
+            objectNode.put("cardAttacker", objectNode2);
+            ObjectNode objectNode3 = objectMapper.createObjectNode();
+            objectNode3.put("x" , cardAttacked.getX());
+            objectNode3.put("y" , cardAttacked.getY());
+            objectNode.put("cardAttacked", objectNode3);
+            objectNode.put("error", "Attacker card is frozen.");
+            output.add(objectNode);
+        } else if (startGame.getBoard().verifyIfAttacked(cardAttacker.getX(), cardAttacker.getY())) {
+            ObjectNode objectNode = objectMapper.createObjectNode();
+            objectNode.put("command" , currentCommand);
+            ObjectNode objectNode2 = objectMapper.createObjectNode();
+            objectNode2.put("x" , cardAttacker.getX());
+            objectNode2.put("y" , cardAttacker.getY());
+            objectNode.put("cardAttacker", objectNode2);
+            ObjectNode objectNode3 = objectMapper.createObjectNode();
+            objectNode3.put("x" , cardAttacked.getX());
+            objectNode3.put("y" , cardAttacked.getY());
+            objectNode.put("cardAttacked", objectNode3);
+            objectNode.put("error", "Attacker card has already attacked this turn.");
+            output.add(objectNode);
+        } else if (startGame.getBoard().getCard(cardAttacker.getX(), cardAttacker.getY()).getName().equals("Disciple")) {
+            if (!startGame.getBoard().verifyIfAlly(startGame.getCurrentTurn(), cardAttacked.getX())) {
+                ObjectNode objectNode = objectMapper.createObjectNode();
+                objectNode.put("command" , currentCommand);
+                ObjectNode objectNode2 = objectMapper.createObjectNode();
+                objectNode2.put("x" , cardAttacker.getX());
+                objectNode2.put("y" , cardAttacker.getY());
+                objectNode.put("cardAttacker", objectNode2);
+                ObjectNode objectNode3 = objectMapper.createObjectNode();
+                objectNode3.put("x" , cardAttacked.getX());
+                objectNode3.put("y" , cardAttacked.getY());
+                objectNode.put("cardAttacked", objectNode3);
+                objectNode.put("error", "Attacked card does not belong to the current player.");
+                output.add(objectNode);
+            } else {
+                Card card = startGame.getBoard().getCard(cardAttacker.getX(), cardAttacker.getY());
+                card.ability(startGame, cardAttacker, cardAttacked);
+            }
+        } else {
+            if (startGame.getBoard().verifyIfAlly(startGame.getCurrentTurn(), cardAttacked.getX())) {
+                ObjectNode objectNode = objectMapper.createObjectNode();
+                objectNode.put("command" , currentCommand);
+                ObjectNode objectNode2 = objectMapper.createObjectNode();
+                objectNode2.put("x" , cardAttacker.getX());
+                objectNode2.put("y" , cardAttacker.getY());
+                objectNode.put("cardAttacker", objectNode2);
+                ObjectNode objectNode3 = objectMapper.createObjectNode();
+                objectNode3.put("x" , cardAttacked.getX());
+                objectNode3.put("y" , cardAttacked.getY());
+                objectNode.put("cardAttacked", objectNode3);
+                objectNode.put("error", "Attacked card does not belong to the enemy.");
+                output.add(objectNode);
+            } else if(!startGame.getBoard().verifyTank(cardAttacked.getX(), cardAttacked.getY(), startGame.getCurrentTurn())) {
+                    ObjectNode objectNode = objectMapper.createObjectNode();
+                    objectNode.put("command", currentCommand);
+                    ObjectNode objectNode2 = objectMapper.createObjectNode();
+                    objectNode2.put("x", cardAttacker.getX());
+                    objectNode2.put("y", cardAttacker.getY());
+                    objectNode.put("cardAttacker", objectNode2);
+                    ObjectNode objectNode3 = objectMapper.createObjectNode();
+                    objectNode3.put("x", cardAttacked.getX());
+                    objectNode3.put("y", cardAttacked.getY());
+                    objectNode.put("cardAttacked", objectNode3);
+                    objectNode.put("error", "Attacked card is not of type 'Tank'.");
+                    output.add(objectNode);
+            } else {
+                Card card = startGame.getBoard().getCard(cardAttacker.getX(), cardAttacker.getY());
+                card.ability(startGame, cardAttacker, cardAttacked);
+            }
+        }
+    }
+
+    private void useAttackHero(String currentCommand, Coordinates cardAttacker) {
+        if (startGame.getBoard().verifyIfFrozen(cardAttacker.getX(), cardAttacker.getY())) {
+            ObjectNode objectNode = objectMapper.createObjectNode();
+            objectNode.put("command" , currentCommand);
+            ObjectNode objectNode2 = objectMapper.createObjectNode();
+            objectNode2.put("x" , cardAttacker.getX());
+            objectNode2.put("y" , cardAttacker.getY());
+            objectNode.put("cardAttacker", objectNode2);
+            objectNode.put("error", "Attacker card is frozen.");
+            output.add(objectNode);
+        } else if (startGame.getBoard().verifyIfAttacked(cardAttacker.getX(), cardAttacker.getY())) {
+            ObjectNode objectNode = objectMapper.createObjectNode();
+            objectNode.put("command" , currentCommand);
+            ObjectNode objectNode2 = objectMapper.createObjectNode();
+            objectNode2.put("x" , cardAttacker.getX());
+            objectNode2.put("y" , cardAttacker.getY());
+            objectNode.put("cardAttacker", objectNode2);
+            objectNode.put("error", "Attacker card has already attacked this turn.");
+            output.add(objectNode);
+        } else if(startGame.getBoard().verifyHasTank(startGame.getCurrentTurn())) {
+            ObjectNode objectNode = objectMapper.createObjectNode();
+            objectNode.put("command", currentCommand);
+            ObjectNode objectNode2 = objectMapper.createObjectNode();
+            objectNode2.put("x", cardAttacker.getX());
+            objectNode2.put("y", cardAttacker.getY());
+            objectNode.put("cardAttacker", objectNode2);
+            ObjectNode objectNode3 = objectMapper.createObjectNode();
+            objectNode.put("error", "Attacked card is not of type 'Tank'.");
+            output.add(objectNode);
+        } else {
+            Card attacker = startGame.getBoard().getCard(cardAttacker.getX(), cardAttacker.getY());
+            attacker.setHasAttacked(1);
+            if (startGame.getCurrentTurn() == 2) {
+                startGame.getPlayer1().getHero().setHealth(startGame.getPlayer1().getHero().getHealth() - attacker.getAttackDamage());
+                if (startGame.getPlayer1().getHero().getHealth() <= 0) {
+                    startGame.getPlayer1().getHero().setHealth(0);
+                    ObjectNode objectNode = objectMapper.createObjectNode();
+                    objectNode.put("gameEnded" , "Player two killed the enemy hero.");
+                    output.add(objectNode);
+                }
+            } else {
+                startGame.getPlayer2().getHero().setHealth(startGame.getPlayer2().getHero().getHealth() - attacker.getAttackDamage());
+                if (startGame.getPlayer2().getHero().getHealth() <= 0) {
+                    startGame.getPlayer2().getHero().setHealth(0);
+                    ObjectNode objectNode = objectMapper.createObjectNode();
+                    objectNode.put("gameEnded" , "Player one killed the enemy hero.");
+                    output.add(objectNode);
+                }
+            }
+        }
+    }
+
+    private void useHeroAbility(String currentCommand, int affectedRow, int currentTurn) {
+        if (!verifyManaForHero(currentTurn)) {
+            ObjectNode objectNode = objectMapper.createObjectNode();
+            objectNode.put("command" , currentCommand);
+            objectNode.put("affectedRow", affectedRow);
+            objectNode.put("error", "Not enough mana to use hero's ability.");
+            output.add(objectNode);
+        } else if (verifyHeroAttacked(currentTurn)) {
+            ObjectNode objectNode = objectMapper.createObjectNode();
+            objectNode.put("command" , currentCommand);
+            objectNode.put("affectedRow", affectedRow);
+            objectNode.put("error", "Hero has already attacked this turn.");
+            output.add(objectNode);
+        } else if (isLordRoyceOrEmpressThorina(currentTurn)) {
+            if (currentTurn == 1 && affectedRow > 1 || currentTurn == 2 && affectedRow < 2) {
+                ObjectNode objectNode = objectMapper.createObjectNode();
+                objectNode.put("command" , currentCommand);
+                objectNode.put("affectedRow", affectedRow);
+                objectNode.put("error", "Selected row does not belong to the enemy.");
+                output.add(objectNode);
+            } else {
+                if (currentTurn == 1) {
+                    startGame.getPlayer1().getHero().ability(affectedRow, startGame.getBoard());
+                    startGame.getPlayer1().getHero().setHasAttacked(1);
+                    int heroMana = startGame.getPlayer1().getHero().getMana();
+                    int currentMana = startGame.getPlayer1().getCurrentMana();
+                    startGame.getPlayer1().setCurrentMana(currentMana - heroMana);
+                } else {
+                    startGame.getPlayer2().getHero().ability(affectedRow, startGame.getBoard());
+                    startGame.getPlayer2().getHero().setHasAttacked(1);
+                    int heroMana = startGame.getPlayer2().getHero().getMana();
+                    int currentMana = startGame.getPlayer2().getCurrentMana();
+                    startGame.getPlayer2().setCurrentMana(currentMana - heroMana);
+                }
+            }
+        } else {
+            if (currentTurn == 1 && affectedRow < 2 || currentTurn == 2 && affectedRow > 1) {
+                ObjectNode objectNode = objectMapper.createObjectNode();
+                objectNode.put("command" , currentCommand);
+                objectNode.put("affectedRow", affectedRow);
+                objectNode.put("error", "Selected row does not belong to the current player.");
+                output.add(objectNode);
+            } else {
+                if (currentTurn == 1) {
+                    startGame.getPlayer1().getHero().ability(affectedRow, startGame.getBoard());
+                    startGame.getPlayer1().getHero().setHasAttacked(1);
+                    int heroMana = startGame.getPlayer1().getHero().getMana();
+                    int currentMana = startGame.getPlayer1().getCurrentMana();
+                    startGame.getPlayer1().setCurrentMana(currentMana - heroMana);
+                } else {
+                    startGame.getPlayer2().getHero().ability(affectedRow, startGame.getBoard());
+                    startGame.getPlayer2().getHero().setHasAttacked(1);
+                    int heroMana = startGame.getPlayer2().getHero().getMana();
+                    int currentMana = startGame.getPlayer2().getCurrentMana();
+                    startGame.getPlayer2().setCurrentMana(currentMana - heroMana);
+                }
+            }
+        }
+    }
+
+    private boolean verifyManaForHero(int currentTurn) {
+        if (currentTurn == 1) {
+            if (startGame.getPlayer1().getCurrentMana() < startGame.getPlayer1().getHero().getMana())
+                return false;
+            return true;
+        } else {
+            if (startGame.getPlayer2().getCurrentMana() < startGame.getPlayer2().getHero().getMana())
+                return false;
+            return true;
+        }
+    }
+
+    private boolean verifyHeroAttacked(int currentTurn) {
+        if (currentTurn == 1) {
+            if (startGame.getPlayer1().getHero().getHasAttacked() == 1)
+                return true;
+            return false;
+        } else {
+            if (startGame.getPlayer2().getHero().getHasAttacked() == 1)
+                return true;
+            return false;
+        }
+    }
+
+    private boolean isLordRoyceOrEmpressThorina(int currentTurn) {
+        if (currentTurn == 1) {
+            if (startGame.getPlayer1().getHero().getName().equals("Lord Royce") || startGame.getPlayer1().getHero().getName().equals("Empress Thorina"))
+                return true;
+            return false;
+        } else {
+            if (startGame.getPlayer2().getHero().getName().equals("Lord Royce") || startGame.getPlayer2().getHero().getName().equals("Empress Thorina"))
+                return true;
+            return false;
+        }
     }
 }

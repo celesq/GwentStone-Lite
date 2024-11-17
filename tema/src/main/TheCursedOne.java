@@ -1,5 +1,7 @@
 package main;
 
+import fileio.Coordinates;
+
 import java.util.ArrayList;
 
 public class TheCursedOne extends SpecialCard{
@@ -10,7 +12,18 @@ public class TheCursedOne extends SpecialCard{
     }
 
     @Override
-    protected void ability() {
+    protected void ability(StartGame startGame, Coordinates cardAttacker, Coordinates cardAttacked) {
         //Shapeshift;
+        Card attacker = startGame.getBoard().getCard(cardAttacker.getX(), cardAttacker.getY());
+        Card attacked = startGame.getBoard().getCard(cardAttacked.getX(), cardAttacked.getY());
+        attacker.setHasAttacked(1);
+        if(attacked.getAttackDamage() == 0)
+            startGame.getBoard().eliminateCard(cardAttacked.getX(), cardAttacked.getY());
+        else {
+            int healthAttacked = attacked.getHealth();
+            int attackDamageAttacked = attacked.getAttackDamage();
+            attacked.setAttackDamage(healthAttacked);
+            attacked.setHealth(attackDamageAttacked);
+        }
     }
 }

@@ -8,6 +8,10 @@ public class Hero extends Card{
         super(0, colors, description, 30, mana, name);
     }
 
+    public void ability(int affectedRow, Board board) {
+        return;
+    }
+
     @Override
     public String toString() {
         return "Card{" +
