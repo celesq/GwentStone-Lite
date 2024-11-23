@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
 import org.poo.fileio.Input;
+import org.poo.gameClasses.PlayGame;
 
 import java.io.File;
 import java.io.IOException;
