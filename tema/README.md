@@ -1,11 +1,8 @@
 
 
-# Tema POO  - GwentStone
+# GwentStone Lite
 
 <div align="center"><img src="https://tenor.com/view/witcher3-gif-9340436.gif" width="500px"></div>
-
-#### Assignment Link: [https://ocw.cs.pub.ro/courses/poo-ca-cd/teme/tema](https://ocw.cs.pub.ro/courses/poo-ca-cd/teme/tema)
-
 
 ## Skel Structure
 
@@ -38,5 +35,3 @@
 15. test15_multiple_games_invalid - 5p
 16. test16_big_game - 10p
 
-
-<div align="center"><img src="https://tenor.com/view/homework-time-gif-24854817.gif" width="500px"></div>
