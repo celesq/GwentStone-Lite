@@ -62,9 +62,82 @@ Certain heroes possess unique powers — freezing rows, healing, or dealing dama
 Before applying an ability, the system verifies:  
 - Mana sufficiency  
 - Valid row targeting  
-- One-use-per-turn limitation  
+- One-use-per-turn limitation
 
----
+**Example Errors:**
+
+`Not enough mana to use hero ability.
+Selected row does not belong to the enemy.`
+
+## Card Uses Ability
+**Command:** `cardUsesAbility`  
+Some cards have special abilities beyond standard attacks.  
+This command triggers them, enforcing:
+- Valid ownership
+- Correct row or card targeting
+- Ability not already used this turn
+- Compliance with type-specific restrictions (offensive vs. supportive)
+
+**Example Errors:**
+
+`Attacked card does not belong to the current player.
+Attacked card does not belong to the enemy.
+Attacker card has already attacked this turn.`
+
+## Row Targeted Abilities
+**Command:** `useEnvironmentCard`  
+Certain environment-type cards affect entire rows (e.g., freezing all cards or reducing health).  
+The engine validates:
+- Correct card type (environment only)
+- Legal row targeting
+- Sufficient mana for play
+
+**Example Errors:**
+
+`Chosen card is not of type environment.
+Not enough mana to use environment card.
+Chosen row does not belong to the enemy.`
+
+## Freeze Mechanics
+Cards can be frozen via hero or environment abilities, preventing their attacks until unfrozen.  
+Each turn, the engine checks freeze counters and updates their status automatically.
+
+## Get Card Information
+The engine supports state inspection commands for debugging and testing purposes:
+
+### `getCardsInHand`
+Displays all cards in the active player’s hand.
+
+### `getCardsOnTable`
+Lists all cards currently placed on the board, separated by row.
+
+### `getPlayerTurn`
+Shows the current active player.
+
+### `getPlayerMana`
+Displays the mana of the specified player.
+
+### `getFrozenCardsOnTable`
+Returns all frozen cards currently on the table.
+
+### `getCardAtPosition`
+Provides full details of the card located at a given row and column index.
+
+### `getEnvironmentCardsInHand`
+Lists all environment cards currently held by the player.
+
+### `getCardDescription`
+Returns metadata for all cards, including `name`, `mana`, `attackDamage`, `health`, and `description`.
+
+All these commands are **read-only** and do not modify the game state.
+
+## End Turn
+**Command:** `endPlayerTurn`  
+Ends the active player’s turn.  
+Automatically:
+- Unfreezes cards (if applicable)
+- Restores per-turn states (e.g., attack availability)
+- Switches control to the opponent
 
 ## Debug / State Inspection  
 The engine supports introspection commands for debugging and validation:  
@@ -74,8 +147,6 @@ The engine supports introspection commands for debugging and validation:
 - `getPlayerTurn` — shows whose turn it is  
 
 All debugging commands are **read-only**, ensuring deterministic replay behavior.  
-
----
 
 ## Ending the Match  
 When a hero’s health reaches zero, the match concludes instantly.  
