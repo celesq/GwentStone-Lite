@@ -1,6 +1,0 @@
-Starting audit...
-[ERROR] /home/rares/ANUL2/POO/tema1/tema/./src/main/java/org/poo/gameClasses/Output.java:655:44: 'output' hides a field. [HiddenField]
-[ERROR] /home/rares/ANUL2/POO/tema1/tema/./src/main/java/org/poo/gameClasses/StartGame.java:171:37: 'inputData' hides a field. [HiddenField]
-[ERROR] /home/rares/ANUL2/POO/tema1/tema/./src/main/java/org/poo/gameClasses/StartGame.java:248:60: 'shuffleSeed' hides a field. [HiddenField]
-Audit done.
-Checkstyle ends with 3 errors.
